@@ -34,16 +34,16 @@ def submit_model(model_url, use_custom_formatter, memory_template, prompt_templa
     return submission_id
 
 
-def save_config(model_url, use_custom_formatter, memory_template, prompt_template, bot_template, user_template,
-                response_template, frequency_penalty, presence_penalty, stopping_words, temperature, top_k, top_p,
-                model_name,
-                reward_repo, best_of, max_input_tokens):
+def save_config(model_url, use_custom_formatter, memory_template, prompt_template, bot_template,
+                                  user_template, response_template, frequency_penalty, presence_penalty, stopping_words,
+                                  temperature, top_k, top_p, model_name, reward_repo, best_of, max_input_tokens):
+
     config = {
         "model_repo": model_url,
         "generation_params": {
             "frequency_penalty": frequency_penalty,
             "presence_penalty": presence_penalty,
-            "stopping_words": stopping_words.split(","),
+            "stopping_words": stopping_words,
             "temperature": temperature,
             "top_k": top_k,
             "top_p": top_p,
@@ -68,7 +68,7 @@ def save_config(model_url, use_custom_formatter, memory_template, prompt_templat
 
     with open("config.yaml", "w") as f:
         yaml.dump(config, f)
-        
+
 
 def load_config(load_config_file):
     with open(load_config_file.name, "r") as f:
@@ -77,29 +77,34 @@ def load_config(load_config_file):
     config = yaml.load(content, Loader=yaml.FullLoader)
 
     list_of_return_values = [
-        gr.Slider(value=config["generation_params"]["temperature"]),
-        gr.Slider(value=config["generation_params"]["frequency_penalty"]),
-        gr.Slider(value=config["generation_params"]["presence_penalty"]),
-        gr.Textbox(value=config["generation_params"]["stopping_words"]),
-        gr.Slider(value=config["generation_params"]["top_k"]),
-        gr.Slider(value=config["generation_params"]["top_p"]),
-        gr.Textbox(value=config["model_name"]),
-        gr.Textbox(value=config["reward_repo"]),
-        gr.Slider(value=config["best_of"]),
-        gr.Slider(value=config["max_input_tokens"]),
-        gr.Checkbox(value=config["use_custom_formatter"])
+        gr.Textbox(value=config["model_repo"], interactive=True),
+        gr.Slider(value=config["generation_params"]["temperature"], interactive=True),
+        gr.Slider(value=config["generation_params"]["frequency_penalty"], interactive=True),
+        gr.Slider(value=config["generation_params"]["presence_penalty"], interactive=True),
+        gr.Textbox(value=config["generation_params"]["stopping_words"], interactive=True),
+        gr.Slider(value=config["generation_params"]["top_k"], interactive=True),
+        gr.Slider(value=config["generation_params"]["top_p"], interactive=True),
+        gr.Textbox(value=config["model_name"], interactive=True),
+        gr.Textbox(value=config["reward_repo"], interactive=True),
+        gr.Slider(value=config["best_of"], interactive=True),
+        gr.Slider(value=config["max_input_tokens"], interactive=True),
+        gr.Checkbox(value=config["use_custom_formatter"], interactive=True),
+        gr.Textbox(value="", interactive=True),
+        gr.Textbox(value="", interactive=True),
+        gr.Textbox(value="", interactive=True),
+        gr.Textbox(value="", interactive=True),
+        gr.Textbox(value="", interactive=True),
     ]
 
     if not config["use_custom_formatter"]:
         return list_of_return_values
 
-    list_of_return_values.extend([
-        gr.Textbox(value=config["formatter"]["memory_template"]),
-        gr.Textbox(value=config["formatter"]["prompt_template"]),
-        gr.Textbox(value=config["formatter"]["bot_template"]),
-        gr.Textbox(value=config["formatter"]["user_template"]),
-        gr.Textbox(value=config["formatter"]["response_template"])
-    ])
+    list_of_return_values[12] = gr.Textbox(value=config["formatter"]["memory_template"], interactive=True)
+    list_of_return_values[13] = gr.Textbox(value=config["formatter"]["prompt_template"], interactive=True)
+    list_of_return_values[14] = gr.Textbox(value=config["formatter"]["bot_template"], interactive=True)
+    list_of_return_values[15] = gr.Textbox(value=config["formatter"]["user_template"], interactive=True)
+    list_of_return_values[16] = gr.Textbox(value=config["formatter"]["response_template"], interactive=True)
+
     return list_of_return_values
 
 
@@ -164,8 +169,7 @@ with gr.Blocks() as submit_page:
         load_config_file = gr.File()
         load_config_button = gr.Button("Load Config")
         load_config_button.click(load_config, inputs=[load_config_file],
-                                 outputs=[model_url, temperature, frequency_penalty, presence_penalty, stopping_words,
-                                          top_k, top_p, model_name, reward_repo, best_of, max_input_tokens])
+                                 outputs=[model_url, temperature, frequency_penalty, presence_penalty, stopping_words, top_k, top_p, model_name, reward_repo, best_of, max_input_tokens, use_custom_formatter, memory_template, prompt_template, bot_template, user_template, response_template])
 
 
 submit_page.launch()
